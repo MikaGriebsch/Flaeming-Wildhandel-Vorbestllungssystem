@@ -45,7 +45,7 @@ export default {
         api.interceptors.response.use(
           response => {
             if ([200, 201].includes(response.status) && ['post', 'put', 'patch'].includes(response.config.method.toLowerCase())) {
-              this.store.displaySuccess("Gespeichert!");
+              this.store.displaySuccess("Saved!");
             }
             return response;
           },

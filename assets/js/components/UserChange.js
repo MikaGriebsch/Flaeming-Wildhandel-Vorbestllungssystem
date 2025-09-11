@@ -11,7 +11,7 @@ const UserChange = {
   methods: {
     updateUser(user) {
       api.patch(`users/${user.id}/`, { username: user.username }).then(() => {
-        this.store.displayMessage("Du kannst dir gar nicht vorstellen, wie dolle sich " + user.username + " freuen wird!", "warning");
+        this.store.displayMessage("You can't imagine the joy of " + user.username + " once he/she finds out!", "warning");
       });
     },
     addUser() {
