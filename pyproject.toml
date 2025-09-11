@@ -12,13 +12,13 @@ homepage = "https://github.com/kakulukia/django-default-project"
 
 [tool.poetry.dependencies]
 django = "^5.2.6"
-django-axes = "^7.1.0"
+django-axes = "^8.0.0"
 django-compressor = "^4.5.1"
-django-extensions = "^3.2.3"
+django-extensions = "^4.1"
 django-kronos = "^1.0"
 django-post-office = "^3.10.1"
-django-secrets = "^1.2.4"
-django-tasks = "^0.6.1"
+django-secrets = "^2.0.1"
+django-tasks = "^0.8.1"
 djangorestframework = "^3.16.1"
 huepy = "^1.2.1"
 pendulum = "^3.1.0"
@@ -34,12 +34,13 @@ gunicorn = "^23.0.0"
 
 [tool.poetry.group.dev.dependencies]
 django-browser-reload = "^1.19.0"
-django-debug-toolbar = "^5.2.0"
+django-debug-toolbar = "^6.0.0"
 icecream = "^2.1.7"
 ipdb = "^0.13.13"
 pre-commit = "^4.3.0"
-ruff = "^0.11.13"
+ruff = "^0.13.0"
 fab-classic = "^1.20.1"  # poetry add --dev "git+https://github.com/kakulukia/fab-classic.git#master" (ssh key fwding)
+toml = "^0.10.2"
 
 
 [build-system]
