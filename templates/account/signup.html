@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Registrieren – Fläming Wildhandel{% endblock %}
+
+{% block content %}
+    <div class="auth-card">
+        <h1>Registrieren</h1>
+        <form method="post" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <button class="primary-button" type="submit">Konto erstellen</button>
+        </form>
+        <div class="auth-footnote">
+            Bereits registriert? <a href="{% url 'account_login' %}">Hier anmelden</a>
+        </div>
+    </div>
+{% endblock %}

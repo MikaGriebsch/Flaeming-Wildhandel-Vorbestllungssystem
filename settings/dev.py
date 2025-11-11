@@ -54,5 +54,6 @@ INTERNAL_IPS = ALLOWED_HOSTS
 # sentry_sdk.init()  # noqa
 
 POST_OFFICE = {"BACKENDS": {"default": "django.core.mail.backends.console.EmailBackend"}}
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 COMPRESS_OFFLINE = False
 DJANGO_RUNSERVER_HIDE_WARNING = True

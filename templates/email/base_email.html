@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>{{ subject }}</title>
+    <style>
+        body {font-family: Arial, sans-serif; color:#222; margin:0; background:#fafafa;}
+        .container {max-width:600px;margin:0 auto;background:#ffffff;padding:24px;}
+        p {line-height:1.5;}
+        a {color:#254117;}
+    </style>
+</head>
+<body>
+{% include "email/partials/header.html" %}
+<div class="container">
+    {% block email_content %}{% endblock %}
+</div>
+{% include "email/partials/footer.html" %}
+</body>
+</html>

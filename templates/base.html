@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}Fläming Wildhandel{% endblock %}</title>
+        <link rel="icon" type="image/png" href="{% static 'legacy/favicon.ico' %}">
+        <link rel="stylesheet" href="{% static 'css/site.css' %}">
+        {% block extra_head %}{% endblock %}
+    </head>
+    <body>
+        <header class="site-header">
+            <div class="site-header__inner">
+                <a href="{% url 'offers:home' %}" class="site-header__logo">
+                    <img src="{% static 'legacy/logo.AVIF' %}" alt="Fläming Wildhandel Logo">
+                </a>
+                <nav class="site-header__nav" aria-label="Hauptnavigation">
+                    {% with match=request.resolver_match %}
+                        <a href="{% url 'offers:list' %}" class="site-header__link {% if match and match.app_name == 'offers' %}is-active{% endif %}">Angebote</a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'users:profile' %}" class="site-header__link {% if match and match.app_name == 'users' and match.url_name == 'profile' %}is-active{% endif %}">Profil</a>
+                            <a class="site-header__cta" href="{% url 'users:logout' %}">Logout</a>
+                        {% else %}
+                            <a class="site-header__cta" href="{% url 'users:login_form' %}">Login</a>
+                        {% endif %}
+                    {% endwith %}
+                </nav>
+            </div>
+        </header>
+
+        {% block hero %}{% endblock %}
+
+        <main class="page-main">
+            {% if messages %}
+                <ul class="messages" role="status">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="site-footer">
+            <div class="site-footer__grid">
+                <div class="site-footer__column">
+                    <div class="site-footer__title">Unsere Hofladen-Öffnungszeiten</div>
+                    <p>
+                        Montag – Freitag: 8 bis 17 Uhr<br>
+                        Samstag: 9 bis 12 Uhr<br>
+                        Sonntag: 9 bis 11 Uhr<br>
+                        Feiertag: geschlossen
+                    </p>
+                </div>
+                <div class="site-footer__column">
+                    <div class="site-footer__title">Kontakt</div>
+                    <p>
+                        Jan Griebsch<br>
+                        Fläming Wildhandel<br>
+                        Tel.: <a href="tel:+493374815597">033 748 / 155 97</a><br>
+                        Fax: 033 748 / 219 30<br>
+                        Mail: <a href="mailto:info@flaeming-wildhandel.de">info@flaeming-wildhandel.de</a>
+                    </p>
+                </div>
+            </div>
+            <div class="site-footer__legal">
+                &copy; {% now "Y" %} Jan Griebsch ·
+                <a href="https://flaeming-wildhandel.de/impressum" target="_blank" rel="noopener">Impressum</a>
+                |
+                <a href="https://flaeming-wildhandel.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a>
+            </div>
+        </footer>
+        {% block extra_js %}{% endblock %}
+    </body>
+</html>

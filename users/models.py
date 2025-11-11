@@ -1,87 +1,107 @@
-from django.conf import settings
-from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin, UserManager
-from django.contrib.sites.models import Site
-from django.core import validators
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
-from django.utils.timezone import now
-from django.utils.translation import activate
+from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from post_office import mail
 
 from utils.models import BaseModel
 
 
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError("Eine E-Mail-Adresse ist erforderlich")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def get_by_natural_key(self, email):
+        """Look up users case-insensitively by email for auth backends."""
+        return self.get(**{f"{self.model.USERNAME_FIELD}__iexact": self.normalize_email(email)})
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser muss is_staff=True haben.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser muss is_superuser=True haben.")
+
+        return self._create_user(email, password, **extra_fields)
+
+
 class User(AbstractBaseUser, BaseModel, PermissionsMixin):
-    username = models.CharField(
-        _("username"),
-        max_length=30,
-        unique=True,
-        help_text=_("user.login.username_help"),
-        validators=[
-            validators.RegexValidator(
-                r"^[\w.@+-]+$",
-                _("forms.errors.enter_valid_username."),
-                "username_invalid",
-            )
-        ],
-    )
-    first_name = models.CharField(_("first name"), max_length=30, blank=True)
-    last_name = models.CharField(_("last name"), max_length=30, blank=True)
-    email = models.EmailField(_("email address"), blank=True)
+    email = models.EmailField(_("E-Mail-Adresse"), unique=True)
+    first_name = models.CharField(_("Vorname"), max_length=150, blank=True)
+    last_name = models.CharField(_("Nachname"), max_length=150, blank=True)
+    street = models.CharField(_("Straße"), max_length=150, blank=True)
+    house_number = models.CharField(_("Hausnummer"), max_length=20, blank=True)
+    postal_code = models.CharField(_("PLZ"), max_length=10, blank=True)
+    city = models.CharField(_("Ort"), max_length=150, blank=True)
+    email_verified_at = models.DateTimeField(_("E-Mail bestätigt am"), null=True, blank=True)
     is_staff = models.BooleanField(
-        _("staff status"),
+        _("Mitarbeiterstatus"),
         default=False,
-        help_text=_("Designates whether the user can log into this admin site."),
+        help_text=_("Legt fest, ob der Benutzer sich im Admin anmelden darf."),
     )
     is_active = models.BooleanField(
-        _("active"),
+        _("Aktiv"),
         default=True,
-        help_text=_(
-            "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
-        ),
+        help_text=_("Legt fest, ob dieser Benutzer als aktiv behandelt werden soll."),
     )
-    date_joined = models.DateTimeField(_("date joined"), default=now)
+    date_joined = models.DateTimeField(_("Registriert am"), default=timezone.now)
 
-    USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["email"]
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
     data = UserManager()
+    objects = UserManager()
 
     class Meta(BaseModel.Meta):
-        verbose_name = _("user")
-        verbose_name_plural = _("users")
+        verbose_name = _("Benutzer")
+        verbose_name_plural = _("Benutzer")
+
+    def __str__(self):
+        return self.get_full_name() or self.email
 
     def get_full_name(self):
-        """Returns the first_name plus the last_name, with a space in between."""
-        full_name = "%s %s" % (self.first_name, self.last_name)
-        return full_name.strip()
+        return f"{self.first_name} {self.last_name}".strip()
 
     def get_short_name(self):
-        """Returns the short name for the user."""
-        return self.first_name
+        return self.first_name or self.email
 
-    def email_user(self, template_name, context=None):
-        """
-        Sends an email to this User.
-        If settings.EMAIL_OVERRIDE_ADDRESS is set, this mail will be
-        redirected to the alternate mail address.
+    @property
+    def address(self):
+        if self.street and self.house_number and self.postal_code and self.city:
+            return f"{self.street} {self.house_number}, {self.postal_code} {self.city}"
+        return ""
 
-        """
-        receiver = self.email
-        if settings.EMAIL_OVERRIDE_ADDRESS:
-            receiver = settings.EMAIL_OVERRIDE_ADDRESS
+    def mark_email_verified(self):
+        if not self.email_verified_at:
+            self.email_verified_at = timezone.now()
+            self.save(update_fields=["email_verified_at"])
 
-        if not context:
-            context = {}
-        context["user"] = self
-        context["base_url"] = "http://{}".format(Site.objects.get_current())
-        context["footer"] = settings.EMAIL_FOOTER
-
-        activate("de")
-        mail.send(
-            receiver,
-            settings.DEFAULT_FROM_EMAIL,
-            template=template_name,
-            context=context,
+    def send_templated_email(self, subject, template_name, context=None):
+        context = context or {}
+        context.setdefault("user", self)
+        text_body = render_to_string(f"email/{template_name}.txt", context)
+        html_body = render_to_string(f"email/{template_name}.html", context)
+        message = EmailMultiAlternatives(
+            subject=subject,
+            body=text_body,
+            to=[self.email],
         )
+        message.attach_alternative(html_body, "text/html")
+        message.send()

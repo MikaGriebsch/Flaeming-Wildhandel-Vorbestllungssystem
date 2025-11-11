@@ -1,3 +1,5 @@
-from .dev import *  # noqa
+from .mika import *  # noqa
 
-DEBUG = True
+raise ImportError(
+	"settings.andy has been renamed to settings.mika; update DJANGO_SETTINGS_MODULE."
+)

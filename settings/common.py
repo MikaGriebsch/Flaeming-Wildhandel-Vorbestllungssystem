@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 
+import environ
 from django.urls import reverse_lazy
 from icecream import install
 from pypugjs.ext.django.compiler import enable_pug_translations
@@ -21,21 +22,31 @@ install()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path.cwd()
-SECRET_KEY = secrets.SECRET_KEY
-SITE_ID = 1
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
+    SITE_ID=(int, 1),
+    EMAIL_BACKEND=(str, "django.core.mail.backends.smtp.EmailBackend"),
+    DEFAULT_FROM_EMAIL=(str, "noreply@flaeming-wildhandel.de"),
+)
+environ.Env.read_env(BASE_DIR / ".env")
+
+SECRET_KEY = env("SECRET_KEY", default=getattr(secrets, "SECRET_KEY", ""))
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY must be set via .env or my_secrets")
+
+SITE_ID = env("SITE_ID")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = [
-    "localhost",
-    "0.0.0.0",
-    # 'server.url.here',
-]
+DEBUG = env.bool("DEBUG", default=False)
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"]) + ["0.0.0.0", "testserver"]
 INSTALLED_APPS = [
     # our own stuff
     "sample_app",
     "users",
+    "offers",
     "utils",
     # Django
     "django.contrib.admin",
@@ -47,7 +58,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # 3rd party apps
     "axes",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
     "compressor",
+    "django_crontab",
     "django_extensions",
     "django_secrets",
     "django_tasks",
@@ -65,6 +80,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
@@ -72,6 +88,7 @@ MIDDLEWARE = [
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "axes.backends.AxesBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 TEMPLATES = [
     {
@@ -83,6 +100,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "users.context_processors.account",
             ],
             "loaders": [
                 # PyPugJS part:   ##############################
@@ -155,26 +173,51 @@ AXES_LOCKOUT_PARAMETERS = ["ip_address", ["username", "user_agent"]]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
-LANGUAGE_CODE = "de-de"
-TIME_ZONE = "CET"
+LANGUAGE_CODE = "de"
+TIME_ZONE = "Europe/Berlin"
 USE_I18N = True
 USE_TZ = True
 
 
-STATICFILES_DIRS = [BASE_DIR / "assets"]
+# static assets & uploads
+STATIC_URL = "static/"
+STATICFILES_DIRS = [path for path in [BASE_DIR / "assets", BASE_DIR / "static"] if path.exists()]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
     "compressor.finders.CompressorFinder",
 ]
-STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_ROOT = BASE_DIR / "media"
 COMPRESS_PRECOMPILERS = (("text/x-sass", "sass {infile} {outfile}"),)
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
 
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+LOGIN_REDIRECT_URL = "/angebote/"
+LOGOUT_REDIRECT_URL = "/login/"
+LOGIN_URL = "/login/"
+
+# django-allauth configuration
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_SIGNUP_FIELDS = [
+    "email*",
+    "first_name*",
+    "last_name*",
+    "street*",
+    "house_number*",
+    "postal_code*",
+    "city*",
+    "password1*",
+    "password2*",
+]
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[Fläming Wildhandel] "
+ACCOUNT_RATE_LIMITS = {"login_failed": "5/10m"}
+ACCOUNT_FORMS = {"signup": "users.forms.UserSignupForm"}
 
 # sentry_sdk.init(
 #     dsn=secrets.SENTRY_DSN,
@@ -224,3 +267,7 @@ REST_FRAMEWORK = {
         "utils.NoFormBrowsableAPIRenderer",  # removes the form and thus a lot of unnecessary queries
     ),
 }
+
+CRONJOBS = [
+    ("0 8 * * *", "django.core.management.call_command", ["send_offer_reminders"]),
+]

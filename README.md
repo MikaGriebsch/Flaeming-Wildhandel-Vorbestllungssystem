@@ -1,4 +1,46 @@
-# django-default-project
+# fwh-orders
+
+## Fläming Wildhandel – Vorbestellungen
+
+Diese Codebasis ist für das Vorbestell-System des Fläming Wildhandel optimiert. Wichtige Eckpunkte:
+
+- Benutzerkonten basieren auf E-Mail-Adressen, die über django-allauth mit Double-Opt-In bestätigt werden müssen.
+- Angebote begrenzen die Gesamtmenge sowie optional die Menge pro Nutzer, Überschreiten wird transaktional verhindert.
+- Bestellungen sind verbindlich; Stornierungen durch Kund:innen sind nicht vorgesehen.
+- Exportfunktionen (CSV, Excel, PDF) stehen über den normalen Django-Admin bereit und behalten die feste Spaltenreihenfolge bei.
+- Erinnerungs-Mails (2 Tage vor Abholung sowie zum Start) werden über ein Cron-Command versendet und im E-Mail-Log protokolliert.
+
+### Setup
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r <(poetry export -f requirements.txt --without-hashes)
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+### Umgebungsvariablen
+
+- `.env.example` kopieren und als `.env` ablegen.
+- Wichtige Keys: `SECRET_KEY`, SMTP-Zugangsdaten, `DEFAULT_FROM_EMAIL`, `DEBUG`, `ALLOWED_HOSTS`.
+
+### Cron & Erinnerungen
+
+- Erinnerungen werden per `python manage.py crontab add` eingeplant.
+- Der Cronjob führt täglich um 08:00 Uhr `python manage.py send_offer_reminders` aus.
+- `python manage.py crontab show` listet aktive Jobs, `python manage.py crontab remove` entfernt sie wieder.
+
+### Smoke-Test (Kurzfassung)
+
+1. Registrieren und E-Mail bestätigen.
+2. Als Admin ein Angebot anlegen (Limit + Zeitfenster).
+3. Angebot im Frontend aufrufen, verbindlich bestellen.
+4. Bestätigungs-Mail prüfen.
+5. Im Admin die Exporte (CSV/Excel/PDF) anstoßen.
+6. Cron-Command `send_offer_reminders` einmal manuell ausführen, um Log-Einträge zu sehen.
 
 #### Django
 
@@ -148,7 +190,7 @@ uv once this ticket is resolved: https://github.com/astral-sh/uv/issues/6794
 After initial setup, customize your settings by copying one of the default environment files:
 
 ```bash
-cp settings/andy.py settings/your_name.py
+cp settings/mika.py settings/your_name.py
 ```
 
 And set your environment variable to use your custom settings by default:

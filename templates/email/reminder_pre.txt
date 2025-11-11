@@ -1,0 +1,5 @@
+In zwei Tagen startet die Abholung für {{ offer.titel }}.
+
+Abholung: {{ abhol_von }} bis {{ abhol_bis }}
+
+Bis bald!

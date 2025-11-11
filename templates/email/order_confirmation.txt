@@ -1,0 +1,7 @@
+Vielen Dank für deine verbindliche Vorbestellung!
+
+Produkt: {{ offer.titel }}
+Menge: {{ registration.menge }}
+Abholung: {{ abhol_von }} bis {{ abhol_bis }}
+
+Bitte beachte: Die Bestellung ist verbindlich. Eine Stornierung ist nicht möglich.

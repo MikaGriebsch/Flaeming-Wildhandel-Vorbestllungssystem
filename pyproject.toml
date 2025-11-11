@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "django_default_project"
+name = "fwh-orders"
 version = "2.0.0"
 description = "It's not always good to start from scratch .. lets have some sane defaults .."
 authors = ["Andy Grabow <andy@freilandkiwis.de>"]
@@ -7,8 +7,8 @@ license = "MIT"
 readme = 'README.md'
 package-mode = false
 
-repository = "https://github.com/kakulukia/django-default-project"
-homepage = "https://github.com/kakulukia/django-default-project"
+repository = "https://github.com/kakulukia/fwh-orders"
+homepage = "https://github.com/kakulukia/fwh-orders"
 
 [tool.poetry.dependencies]
 django = "^5.2.6"
@@ -31,6 +31,12 @@ whitenoise = "^6.10.0"
 django-loginas = "^0.3.12"
 # django-model-utils - use this if a status field is needed and maybe also a status_changed field
 gunicorn = "^23.0.0"
+django-allauth = "^65.13.0"
+django-environ = "^0.12.0"
+reportlab = "^4.4.4"
+openpyxl = "^3.1.5"
+django-crontab = "^0.7.1"
+pytz = "^2025.2"
 
 [tool.poetry.group.dev.dependencies]
 django-browser-reload = "^1.19.0"

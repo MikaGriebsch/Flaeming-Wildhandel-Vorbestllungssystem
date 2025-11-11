@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Vielen Dank – Fläming Wildhandel{% endblock %}
+
+{% block hero %}
+	<section class="hero">
+		<picture>
+			<source media="(max-width: 750px)" srcset="{% static 'legacy/bannerMobile.AVIF' %}">
+			<source media="(max-width: 1080px)" srcset="{% static 'legacy/bannerIpad.AVIF' %}">
+			<img class="hero__image" src="{% static 'legacy/banner.avif' %}" alt="Vielen Dank">
+		</picture>
+		<h1 class="hero__title">Danke für deine Vorbestellung!</h1>
+	</section>
+{% endblock %}
+
+{% block content %}
+	<div class="success-card">
+		<h1>Wildbret reserviert</h1>
+		<p>Dein Angebot <strong>{{ offer.titel }}</strong> steht im Zeitraum <strong>{{ abhol_von }}</strong> bis <strong>{{ abhol_bis }}</strong> zur Abholung bereit.</p>
+		<p>Wir freuen uns auf deinen Besuch im Hofladen.</p>
+		<a class="button-link" href="{% url 'offers:list' %}">Zurück zur Übersicht</a>
+	</div>
+{% endblock %}

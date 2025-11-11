@@ -1,0 +1,2 @@
+Bitte bestätige deine E-Mail-Adresse über den folgenden Link:
+{{ activate_url }}

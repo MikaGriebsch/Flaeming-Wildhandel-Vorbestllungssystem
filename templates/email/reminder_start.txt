@@ -1,0 +1,5 @@
+Heute startet die Abholung für {{ offer.titel }}.
+
+Abholung: {{ abhol_von }} bis {{ abhol_bis }}
+
+Wir sehen uns bei der Ausgabe!

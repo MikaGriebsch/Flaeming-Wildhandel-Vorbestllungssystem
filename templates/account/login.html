@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Anmelden – Fläming Wildhandel{% endblock %}
+
+{% block content %}
+    <div class="auth-card">
+        <h1>Anmelden</h1>
+        <form method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div>
+                <label for="id_login">E-Mail</label>
+                {{ form.login }}
+                {{ form.login.errors }}
+            </div>
+            <div>
+                <label for="id_password">Passwort</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+            <button class="primary-button" type="submit">Einloggen</button>
+        </form>
+        <div class="auth-footnote">
+            <p><a href="{% url 'account_reset_password' %}">Passwort vergessen?</a></p>
+            <p>Noch kein Konto? <a href="{% url 'account_signup' %}">Jetzt registrieren</a></p>
+        </div>
+    </div>
+{% endblock %}

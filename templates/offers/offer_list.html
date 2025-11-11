@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Aktuelle Angebote – Fläming Wildhandel{% endblock %}
+
+{% block content %}
+    {% if angebote %}
+        <h1 class="section-title">Aktuelle Vorbestellungen</h1>
+        <div class="offer-grid">
+            {% for offer in angebote %}
+                <article class="offer-card">
+                    <div>
+                        <h2>{{ offer.titel }}</h2>
+                        {% if offer.beschreibung %}
+                            <p>{{ offer.beschreibung|linebreaksbr }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="offer-card__meta">
+                        <p><strong>Bestellfenster:</strong> {{ offer.bestell_start|date:"d.m.Y H:i" }} – {{ offer.bestell_ende|date:"d.m.Y H:i" }}</p>
+                        <p><strong>Abholung:</strong> {{ offer.abhol_von|date:"d.m.Y" }} – {{ offer.abhol_bis|date:"d.m.Y" }}</p>
+                        <p class="badge">Noch verfügbar: {{ offer.remaining_quantity }}</p>
+                    </div>
+                    <div class="offer-card__cta">
+                        <a class="button-link" href="{% url 'offers:detail' slug=offer.slug %}">Jetzt vorbestellen</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>Aktuell keine Angebote verfügbar</h2>
+            <p>Unsere Meister arbeiten bereits an der nächsten Frische-Charge. Schau bald wieder vorbei oder folge uns auf Instagram für Updates!</p>
+            <p><a class="button-link" href="https://www.instagram.com/flaeming_wildhandel/" target="_blank" rel="noopener">Instagram besuchen</a></p>
+        </div>
+    {% endif %}
+{% endblock %}

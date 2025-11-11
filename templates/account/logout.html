@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Abmelden – Fläming Wildhandel{% endblock %}
+
+{% block content %}
+    <div class="auth-card">
+        <h1>Abmelden</h1>
+        <p class="text-center">Möchtest du dich wirklich von deinem Konto abmelden?</p>
+        <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+            <button class="primary-button" type="submit">Jetzt abmelden</button>
+        </form>
+        <div class="auth-footnote">
+            <p><a href="{% url 'offers:home' %}">Abbrechen und zurück zur Übersicht</a></p>
+        </div>
+    </div>
+{% endblock %}

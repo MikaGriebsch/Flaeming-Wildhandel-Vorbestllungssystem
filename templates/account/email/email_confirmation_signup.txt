@@ -1,0 +1,6 @@
+Hallo {{ user.first_name|default:user.email }},
+
+bitte bestätige deine E-Mail-Adresse über den folgenden Link:
+{{ activate_url }}
+
+Falls du dich nicht registriert hast, ignoriere diese Nachricht.

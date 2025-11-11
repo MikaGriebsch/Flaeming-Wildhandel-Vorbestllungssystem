@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Mein Profil – Fläming Wildhandel{% endblock %}
+
+{% block content %}
+    <section class="profile-grid">
+        <article class="profile-card">
+            <h1>Mein Profil</h1>
+            <p class="profile-greeting">Hallo {{ request.user.get_full_name|default:request.user.email }}!</p>
+            <dl class="profile-details">
+                <div>
+                    <dt>E-Mail</dt>
+                    <dd>{{ request.user.email }}</dd>
+                </div>
+                {% if request.user.address %}
+                    <div>
+                        <dt>Adresse</dt>
+                        <dd>{{ request.user.address }}</dd>
+                    </div>
+                {% endif %}
+                <div>
+                    <dt>Registriert seit</dt>
+                    <dd>{{ request.user.date_joined|date:"d.m.Y" }}</dd>
+                </div>
+            </dl>
+        </article>
+        <article class="profile-card">
+            <h2>Passwort</h2>
+            <p>Du kannst dir jederzeit einen Link zum Zurücksetzen deines Passworts zusenden lassen.</p>
+            <form method="post" class="profile-form">
+                {% csrf_token %}
+                <button type="submit" name="send_password_reset" value="1" class="secondary-button">Passwort zurücksetzen</button>
+            </form>
+        </article>
+    </section>
+
+    <section class="profile-card">
+        <div class="profile-card__header">
+            <h2>Meine Vorbestellungen</h2>
+            <div class="profile-stats">
+                <span>{{ total_orders }} {% if total_orders == 1 %}Bestellung{% else %}Bestellungen{% endif %}</span>
+                <span>{{ total_quantity }} {% if total_quantity == 1 %}Produkt{% else %}Produkte{% endif %} insgesamt</span>
+            </div>
+        </div>
+        {% if registrations %}
+            <ul class="order-list">
+                {% for registration in registrations %}
+                    <li class="order-list__item">
+                        <div class="order-list__header">
+                            <span class="order-list__title">{{ registration.offer.titel }}</span>
+                            <span class="order-list__quantity">{{ registration.menge }} ×</span>
+                        </div>
+                        <div class="order-list__meta">
+                            <span>Bestellt am {{ registration.erstellt_at|date:"d.m.Y H:i" }}</span>
+                            <span>Abholung: {{ registration.offer.abhol_von|date:"d.m.Y" }} – {{ registration.offer.abhol_bis|date:"d.m.Y" }}</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-profile-state">Du hast noch keine Vorbestellungen. <a href="{% url 'offers:list' %}">Hier geht es zu den Angeboten.</a></p>
+        {% endif %}
+    </section>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "email/base_email.html" %}
+{% block email_content %}
+<h1>Vielen Dank für deine verbindliche Vorbestellung!</h1>
+<p>Wir haben deine Bestellung für <strong>{{ offer.titel }}</strong> mit der Menge <strong>{{ registration.menge }}</strong> erhalten.</p>
+<p>Abholung: <strong>{{ abhol_von }}</strong> bis <strong>{{ abhol_bis }}</strong>.</p>
+<p>Bitte beachte: Die Bestellung ist verbindlich. Eine Stornierung ist nicht möglich.</p>
+{% endblock %}

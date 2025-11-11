@@ -3,20 +3,18 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
 
-from sample_app.views import index
 from users.views import UserViewSet
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
 
 urlpatterns = [
-    # admin urls
     path("admin/", include("loginas.urls")),
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
-    # path("accounts/", include("django.contrib.auth.urls")),  # add this if you want to use the default auth urls
-    # application urls
-    path("", index),
+    path("accounts/", include("allauth.urls")),
+    path("", include("users.urls")),
+    path("", include("offers.urls")),
 ]
 
 if settings.DEBUG:

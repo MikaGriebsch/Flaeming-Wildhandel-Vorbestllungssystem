@@ -1,0 +1,7 @@
+{% extends "email/base_email.html" %}
+{% block email_content %}
+<h1>Heute startet die Abholung</h1>
+<p>Ab heute kannst du <strong>{{ offer.titel }}</strong> abholen.</p>
+<p>Abholung: <strong>{{ abhol_von }}</strong> bis <strong>{{ abhol_bis }}</strong>.</p>
+<p>Bitte hole deine Bestellung innerhalb dieses Zeitfensters ab.</p>
+{% endblock %}

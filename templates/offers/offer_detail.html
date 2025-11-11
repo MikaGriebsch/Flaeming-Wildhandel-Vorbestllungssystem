@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ offer.titel }} – Fläming Wildhandel{% endblock %}
+
+{% block content %}
+    <div class="offer-header">
+        <h1 class="section-title">{{ offer.titel }}</h1>
+    </div>
+    <article class="offer-detail">
+        {% if offer.beschreibung %}
+            <p>{{ offer.beschreibung|linebreaksbr }}</p>
+        {% endif %}
+        <div class="offer-detail__meta">
+            <p><strong>Bestellfenster:</strong> {{ offer.bestell_start|date:"d.m.Y H:i" }} – {{ offer.bestell_ende|date:"d.m.Y H:i" }}</p>
+            <p><strong>Abholung:</strong> {{ offer.abhol_von|date:"d.m.Y" }} – {{ offer.abhol_bis|date:"d.m.Y" }}</p>
+            <p><span class="badge">Verfügbare Menge: {{ remaining }}</span></p>
+        </div>
+
+        {% if needs_login %}
+            <p><strong>Bitte melde dich an</strong>, um vorzubestellen. <a class="button-link" href="{% url 'users:login_form' %}">Zum Login</a></p>
+        {% elif needs_verification %}
+            <p>Bitte bestätige zuerst deine E-Mail-Adresse. Die Verifizierungs-Mail wurde dir bereits zugesendet.</p>
+        {% elif remaining <= 0 and not existing_registration %}
+            <p>Dieses Angebot ist leider ausverkauft. Schau bald wieder vorbei!</p>
+        {% else %}
+            {% if existing_registration %}
+                <p class="consent-message">Du hast dieses Angebot bereits verbindlich bestellt (aktuelle Menge: {{ existing_registration.menge }}). Du kannst deine Menge hier anpassen, solange noch Bestände verfügbar sind.</p>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div>
+                    <label for="id_menge">Gewünschte Menge</label>
+                    {{ form.menge }}
+                    {% if form.menge.help_text %}<small>{{ form.menge.help_text }}</small>{% endif %}
+                    {{ form.menge.errors }}
+                </div>
+                <p class="consent-message">{{ form.consent_text }}</p>
+                <div class="form-actions">
+                    <button class="primary-button" type="submit">Verbindlich bestellen</button>
+                    <a class="muted-link" href="{% url 'offers:list' %}">Zurück zur Übersicht</a>
+                </div>
+            </form>
+        {% endif %}
+    </article>
+{% endblock %}
+
