@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "offers",
     "utils",
     # Django
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -247,6 +248,27 @@ EMAIL_FOOTER = ""
 EMAIL_BACKEND = "post_office.EmailBackend"
 
 SILENCED_SYSTEM_CHECKS = ["debug_toolbar.W006"]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Fläming Wildhandel Verwaltung",
+    "site_header": "Fläming Wildhandel",
+    "site_brand": "Fläming Wildhandel",
+    "welcome_sign": "Willkommen im Adminbereich",
+    "topmenu_links": [
+        {"name": "Zur Website", "url": "/", "permissions": ["offers.view_offer"]},
+    ],
+    "usermenu_links": [
+        {"name": "Startseite", "url": "/angebote/"},
+    ],
+    "show_ui_builder": False,
+    "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",
+    "navbar_fixed": True,
+    "sidebar_fixed": False,
+}
 
 
 def can_login_as(request, target_user):
